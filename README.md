@@ -1,4 +1,4 @@
-Titan Assemler
+Titan Assembler
 ==============
 Java Desktop
 ------------
