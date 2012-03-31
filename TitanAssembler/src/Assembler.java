@@ -1,7 +1,4 @@
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -36,16 +33,20 @@ public class Assembler {
     private int addressOffset = 0;
 
 
-    public Assembler(String in, String out) {
+    public Assembler(String in, String out) throws IOException {
         inputFile = new File(in);
         outputFile = new File(out);
+
+        if (!outputFile.exists()) {
+            outputFile.createNewFile();
+        }
 
         for (int i = 0; i < registerNames.length; i++) { // Add set registers to labels
             labels.put(registerNames[i], registerValues[i]);
         }
     }
 
-    public Assembler(String in) {
+    public Assembler(String in) throws IOException {
         this(in, "output.o");
     }
 
@@ -361,9 +362,25 @@ public class Assembler {
                 System.out.println();
                 System.out.print(addressString(Integer.toHexString(j)).toUpperCase() + "   ");
             }
-            String hexByte = Integer.toHexString(bytes.get(i) & 0xFF).toUpperCase();
-            System.out.print((hexByte.length() == 1 ? "0" + hexByte : hexByte) + " ");
+
+            System.out.print(byteToHex(bytes.get(i)) + " ");
         }
+    }
+
+    public String byteToHex(byte b) {
+        String hexByte = Integer.toHexString(b & 0xFF).toUpperCase();
+        return hexByte.length() == 1 ? "0" + hexByte : hexByte;
+    }
+
+    public void dumpToFile() throws IOException {
+        BufferedWriter out = new BufferedWriter(new FileWriter(outputFile));
+        Iterator<Byte> iterator = bytes.iterator();
+        while (iterator.hasNext()) {
+
+            out.write(byteToHex(iterator.next()) + " ");
+        }
+        out.flush();
+        out.close();
     }
 
     public String addressString(String address) {
@@ -393,20 +410,49 @@ public class Assembler {
 
 
     public static void main(String[] args) {
-        if (args.length == 3) {
-            Assembler asm = new Assembler(args[0]);
+        if (args.length == 1) {
 
             try {
-                asm.readLines(Integer.parseInt(args[1]));
+                Assembler asm = new Assembler(args[0]);
+                asm.readLines(0);
                 asm.assembleLines();
-                asm.printBytes(Integer.parseInt(args[2]));
+                asm.printBytes(16);
 
 
             } catch (IOException ioe) {
                 ioe.getStackTrace();
             }
+        } else if (args.length == 2) {
+
+            try {
+                Assembler asm = new Assembler(args[0], args[1]);
+                asm.readLines(0);
+                asm.assembleLines();
+                asm.printBytes(16);
+                asm.dumpToFile();
+
+
+            } catch (IOException ioe) {
+                ioe.getStackTrace();
+            }
+        } else if (args.length == 4) {
+
+            try {
+                Assembler asm = new Assembler(args[0], args[1]);
+                asm.readLines(Integer.parseInt(args[2]));
+                asm.assembleLines();
+                asm.printBytes(Integer.parseInt(args[3]));
+                asm.dumpToFile();
+
+            } catch (IOException ioe) {
+                ioe.getStackTrace();
+            }
+
+
         } else {
-            System.out.println("Usage: Assembler InputFile StartAddress OutputWidth");
+            System.out.println("Usage: Assembler InputFile");
+            System.out.println("Usage: Assembler InputFile OutputFile");
+            System.out.println("Usage: Assembler InputFile OutputFile StartAddress Width");
         }
 
 
