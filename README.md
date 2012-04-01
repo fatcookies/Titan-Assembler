@@ -1,15 +1,16 @@
-Titan Assembler
+Titan Assemler
 ==============
 Java Desktop
 ------------
 ### Usage:
-    java Assembler InputFile StartAddress OutputWidth
-* InputFile: The file to be assembled, can be any extension
+    java Assembler InputFile OutputFile StartAddress OutputWidth
+* InputFile: The file to be assembled, can be any extension.
+* OuputFile: Dumps the assembled bytes as hexadecimal to this file.
 * StartAddress: The address at which the assmebler starts "counting" from.
-* OutputWidth: The number of bytes printed on a line
+* OutputWidth: The number of bytes printed on a line.
 
 ### Example Usage
-    >java Assembler monitor.txt 0 16
+    >java Assembler monitor.txt mointor.hex 0 16
     Program starts at BEGIN Address: 002E
     
     0000   00 01 02 03 04 05 06 07 08 09 00 00 00 00 00 00
@@ -31,6 +32,7 @@ Java Desktop
 The assembly in the file "monitor.txt" is assembled, starting at address 0000, with 16 bytes printed per line.
 The addresses of the first byte of the line are given on the left.
 All values are printed in hexadecimal.
+"monitor.hex" will contain the similar output, just without the addresses.
 
 Android Assembler
 -----------------
