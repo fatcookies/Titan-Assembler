@@ -1,8 +1,10 @@
 package com.fc.titanassemble;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,21 +18,21 @@ import java.util.Set;
  */
 public class Assembler {
 
-	public static final String[] mnemonics = { "NOP", "ADD", "ADC", "SUB",
-			"AND", "LOR", "XOR", "NOT", "SHR", "INT", "RTE", "PSH", "POP",
-			"MOV", "CLR", "XCH", "JMP", "JPZ", "JPS", "JPC", "JPI", "JSR",
-			"RTN", "JMI", "LDI", "STI", "LDC", "LDM", "STM", "SHL", "TST" };
-	public static final int[] opcodeValue = { 0x00, 0x10, 0x11, 0x12, 0x13,
-			0x14, 0x15, 0x16, 0x17, 0x20, 0x21, 0x70, 0x80, 0x90, 0x60, 0x91,
-			0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA8, 0xC8, 0xC0, 0xD0,
-			0xE0, 0xF0, 0x10, 0x15 };
-	public static final int[] insLengths = { 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1,
-			1, 1, 2, 1, 2, 3, 3, 3, 3, 3, 3, 1, -1, -1, -1, 2, 3, 3, 2, 2 };
-	public static final String[] registerNames = { "R0", "R1", "R2", "R3",
-			"R4", "R5", "R6", "R7", "R8", "R9", "RA", "RB", "RC", "RD", "RE",
-			"RF" };
-	public static final int[] registerValues = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-			10, 11, 12, 13, 14, 15 };
+	public static final String[] mnemonics = {"NOP", "ADD", "ADC", "SUB", "AND", "LOR", "XOR", "NOT", "SHR",
+        "INT", "RTE", "PSH", "POP", "MOV", "CLR", "XCH", "JMP",
+        "JPZ", "JPS", "JPC", "JPI", "JSR", "RTN", "JMI", "LDI",
+        "STI", "LDC", "LDM", "STM", "SHL", "TST", "INC", "DEC"};
+public static final int[] opcodeValue = {0x00, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+        0x20, 0x21, 0x70, 0x80, 0x90, 0x60, 0x91, 0xA0,
+        0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA8, 0xC8,
+        0xC0, 0xD0, 0xE0, 0xF0, 0x10, 0x15, 0x18, 0x19};
+public static final int[] insLengths = {1, 2, 2, 2, 2, 2, 2, 2, 2,
+        2, 1, 1, 1, 2, 1, 2, 3,
+        3, 3, 3, 3, 3, 1, -1, -1,
+        -1, 2, 3, 3, 2, 2, 2, 2};
+public static final String[] registerNames = {"R0", "R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9",
+        "RA", "RB", "RC", "RD", "RE", "RF"};
+public static final int[] registerValues = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
 
 	private File inputFile, outputFile;
 	private ArrayList<String> lines = new ArrayList<String>();
@@ -206,6 +208,8 @@ public class Assembler {
 
 		case 7: // NOT
 		case 8: // SHR
+        case 31: // INC
+        case 32: // DEC
 			result[1] = (byte) (labels.get(split[1]) << 4);
 			break;
 
@@ -398,12 +402,26 @@ public class Assembler {
 				sb.append(addressString(Integer.toHexString(j)).toUpperCase()
 						+ "      ");
 			}
-			String hexByte = Integer.toHexString(bytes.get(i) & 0xFF)
-					.toUpperCase();
-			sb.append((hexByte.length() == 1 ? "0" + hexByte : hexByte) + " ");
+			sb.append(byteToHex(bytes.get(i)) + " ");
 		}
 		return sb.toString();
 	}
+
+   public String byteToHex(byte b) {
+        String hexByte = Integer.toHexString(b & 0xFF).toUpperCase();
+        return hexByte.length() == 1 ? "0" + hexByte : hexByte;
+    }
+
+    public void dumpToFile() throws IOException {
+        BufferedWriter out = new BufferedWriter(new FileWriter(outputFile));
+        Iterator<Byte> iterator = bytes.iterator();
+        while (iterator.hasNext()) {
+
+            out.write(byteToHex(iterator.next()) + " ");
+        }
+        out.flush();
+        out.close();
+    }
 
 	public String addressString(String address) {
 		StringBuilder sb = new StringBuilder();
