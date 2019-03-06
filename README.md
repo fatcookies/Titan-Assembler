@@ -6,7 +6,7 @@ Java Desktop
     java Assembler InputFile OutputFile StartAddress OutputWidth
 * InputFile: The file to be assembled, can be any extension.
 * OuputFile: Dumps the assembled bytes as hexadecimal to this file.
-* StartAddress: The address at which the assmebler starts "counting" from.
+* StartAddress: The address at which the assembler starts "counting" from.
 * OutputWidth: The number of bytes printed on a line.
 
 ### Example Usage
